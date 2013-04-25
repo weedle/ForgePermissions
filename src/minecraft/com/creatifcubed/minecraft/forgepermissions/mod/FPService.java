@@ -25,21 +25,19 @@ public class FPService {
 	
 	public Configuration getConfiguration(String modid, String format) {
 		modid = modid.toLowerCase();
-		if (!this.allModConfigs.containsKey(modid)) {
-			FPConfiguration modConfig = new FPConfiguration(null);
-			if (format.equals(FORMAT_FORGE)) {
-				modConfig.setTransformer(new ForgeConfigurationTransformer());
-			} else if (format.equals(FORMAT_JSON)) {
-				modConfig.setTransformer(null);
-			} else if (format.equals(FORMAT_XML)) {
-				modConfig.setTransformer(null);
-			} else {
-				ForgePermissions.log.info(String.format("FPService.getConfiguration invalid format type {%s}. Using default ForgeConfigurationTransformer", format));
-				modConfig.setTransformer(new ForgeConfigurationTransformer());
-			}
-			this.allModConfigs.put(modid, modConfig);
+		FPConfiguration modConfig = new FPConfiguration(null);
+		if (format.equals(FORMAT_FORGE)) {
+			modConfig.setTransformer(new ForgeConfigurationTransformer());
+		} else if (format.equals(FORMAT_JSON)) {
+			modConfig.setTransformer(null);
+		} else if (format.equals(FORMAT_XML)) {
+			modConfig.setTransformer(null);
+		} else {
+			ForgePermissions.log.info(String.format("FPService.getConfiguration invalid format type {%s}. Using default ForgeConfigurationTransformer", format));
+			modConfig.setTransformer(new ForgeConfigurationTransformer());
 		}
-		return this.allModConfigs.get(modid);
+		this.allModConfigs.put(modid, modConfig);
+		return modConfig;
 	}
 	
 	public void saveAll() {
