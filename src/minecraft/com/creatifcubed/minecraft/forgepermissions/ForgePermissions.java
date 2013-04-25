@@ -1,6 +1,9 @@
 package com.creatifcubed.minecraft.forgepermissions;
 
+import java.io.File;
 import java.util.logging.Logger;
+
+import com.creatifcubed.minecraft.forgepermissions.mod.models.FPConfiguration;
 
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.DimensionManager;
@@ -35,7 +38,10 @@ public class ForgePermissions {
 
 	public static final Logger log = Logger.getLogger(MOD_ID + ".log");
 	public static final String DEFAULT_WORLD_CONFIG_FOLDER = "config";
-
+	
+	private FPConfiguration config;
+	private File forgeModConfigFile;
+	
 	@Instance
 	public static ForgePermissions instance;
 
@@ -43,12 +49,9 @@ public class ForgePermissions {
 	@PreInit
 	public void preInit(FMLPreInitializationEvent event) {
 		// Config
-		Configuration config = new Configuration(
-				event.getSuggestedConfigurationFile());
-
-		Property worldConfigFolder = config.get(Configuration.CATEGORY_GENERAL,
-				"worldConfigFolder", DEFAULT_WORLD_CONFIG_FOLDER);
-
+		this.config = new FPConfiguration(event.getSuggestedConfigurationFile());
+		this.forgeModConfigFile = event.getModConfigurationDirectory();
+		
 		// Events
 		// MinecraftForge.EVENT_BUS.register(new FPEventHandler());
 
