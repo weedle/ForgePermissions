@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.minecraftforge.common.ConfigCategory;
 import net.minecraftforge.common.Property;
+import net.sf.json.JSONObject;
 
 
 import com.creatifcubed.minecraft.forgepermissions.mod.commands.FPCommand;
@@ -19,35 +20,41 @@ private FPCommand fpCommand;
 	@Override
 	public void save(FPConfiguration config, File f) throws IOException {
 		 {
-			 boolean comma = false; //comma is just so we have a comma between every
-			 						//key/value pair, but not at the beginning
+			 JSONObject json = new JSONObject();
+			 
 			 Map<String, ConfigCategory> categories = config.getCategories();
 
 			  FileWriter fstream = new FileWriter(f);
 			  BufferedWriter out = new BufferedWriter(fstream);
 			  
-				 for (ConfigCategory i : categories){
+				 for (ConfigCategory i : categories.values()){
 					 for (Property p : i.values()){
-						 //this is terrible code, i'll refactor if it works xD
-						 if(comma){
-							 out.write(",");
-						 }
 						 if(p.getType() == Property.Type.INTEGER){
-							 out.write(p.getName() + ":" + p.getInt());
+
+							 json.put(p.getName(), p.getInt());
+							 //out.write(p.getName() + ":" + p.getInt());
 						 }
 						 if(p.getType() == Property.Type.BOOLEAN){
-							 out.write(p.getName() + ":" + p.isBooleanValue());
+
+							 json.put(p.getName(), p.isBooleanValue());
+							 //out.write(p.getName() + ":" + p.isBooleanValue());
 						 }
 						 if(p.getType() == Property.Type.STRING){
-							 out.write(p.getName() + ": \"" + p.getString() + "\"");
+
+							 json.put(p.getName(), p.getString());
+							 //out.write(p.getName() + ": \"" + p.getString() + "\"");
 						 }
 						 if(p.getType() == Property.Type.DOUBLE){
-							 //we're not handling doubles, yes?
+							 for (Double d : p.getDoubleList()){
+								 json.accumulate(p.getName(), d);
+							 }
+
 						 }
 					 }
 				 }
 				 
 		  //Close the output stream
+				 out.write(json.toString());
 			  out.close();
 			  }
 	}
