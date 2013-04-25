@@ -25,7 +25,7 @@ public class FPService {
 	
 	public Configuration getConfiguration(String modid, String format) {
 		modid = modid.toLowerCase();
-		FPConfiguration modConfig = new FPConfiguration(null);
+		FPConfiguration modConfig = new FPConfiguration((File) null);
 		if (format.equals(FORMAT_FORGE)) {
 			modConfig.setTransformer(new ForgeConfigurationTransformer());
 		} else if (format.equals(FORMAT_JSON)) {

@@ -1,13 +1,10 @@
 package com.creatifcubed.minecraft.forgepermissions.mod.commands;
 
-import java.util.Locale.Category;
-
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.common.ConfigCategory;
 
 public class FPCommand extends CommandBase {
-	private ConfigCategory[] categories;
 
 	@Override
 	public String getCommandName() {
@@ -27,10 +24,5 @@ public class FPCommand extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender sender, String[] params) {
 		// TODO Auto-generated method stub		
-	}
-	
-	public ConfigCategory[] getConfigCategories() {
-		ConfigCategory[] returnCategories = this.categories;
-		return returnCategories;
 	}
 }

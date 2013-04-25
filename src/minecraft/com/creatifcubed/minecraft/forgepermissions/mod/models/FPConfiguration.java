@@ -2,6 +2,7 @@ package com.creatifcubed.minecraft.forgepermissions.mod.models;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -38,6 +39,10 @@ public class FPConfiguration extends Configuration {
 	public FPConfiguration setTransformer(ConfigurationTransformer transformer) {
 		this.transformer = transformer;
 		return this;
+	}
+	
+	public Map<String, ConfigCategory> getCategories() {
+		return Collections.unmodifiableMap(this.categories);
 	}
 	
 	@Override

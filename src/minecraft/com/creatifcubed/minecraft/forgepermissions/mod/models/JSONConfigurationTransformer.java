@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 import net.minecraftforge.common.ConfigCategory;
 import net.minecraftforge.common.Property;
@@ -11,7 +12,7 @@ import net.minecraftforge.common.Property;
 
 import com.creatifcubed.minecraft.forgepermissions.mod.commands.FPCommand;
 
-public class JSONConfigurationSaver implements ConfigurationTransformer {
+public class JSONConfigurationTransformer implements ConfigurationTransformer {
 private FPCommand fpCommand;
 
 
@@ -20,7 +21,7 @@ private FPCommand fpCommand;
 		 {
 			 boolean comma = false; //comma is just so we have a comma between every
 			 						//key/value pair, but not at the beginning
-			 	ConfigCategory[] categories = fpCommand.getConfigCategories();
+			 Map<String, ConfigCategory> categories = config.getCategories();
 
 			  FileWriter fstream = new FileWriter(f);
 			  BufferedWriter out = new BufferedWriter(fstream);
