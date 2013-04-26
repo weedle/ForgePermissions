@@ -1,34 +1,69 @@
 package com.creatifcubed.minecraft.forgepermissions.mod.models;
 
+import static net.minecraftforge.common.Property.Type.BOOLEAN;
+import static net.minecraftforge.common.Property.Type.DOUBLE;
+import static net.minecraftforge.common.Property.Type.INTEGER;
+import static net.minecraftforge.common.Property.Type.STRING;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PushbackInputStream;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
 
 import com.creatifcubed.minecraft.forgepermissions.Utils;
+import com.google.common.collect.ImmutableSet;
 
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.ConfigCategory;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
+import net.minecraftforge.common.Configuration.UnicodeInputStreamReader;
 
-public class FPConfiguration extends Configuration {
+public class FPConfiguration {
 	
+	public final ConfigurationPlus forgeConfig;
 	private File file;
 	private ConfigurationTransformer transformer;
-	private Configuration forgeConfig;
 	private Exception lastError;
 	private Map<String, ConfigCategory> categories;
 	
+	/**
+	 * 
+	 * @param f Location to save the world-specific config
+	 */
 	public FPConfiguration(File f) {
-		this(f, null);
+		this(f, (ConfigurationPlus) null); 
 	}
 	
-	public FPConfiguration(Configuration forgeConfig) {
-		this(null, forgeConfig);
+	/**
+	 * 
+	 * @param f Location to save the world-specific config
+	 * @param forgeConfig
+	 */
+	public FPConfiguration(File f, File forgeConfig) {
+		this(f, new ConfigurationPlus(forgeConfig));
 	}
 	
-	public FPConfiguration(File f, Configuration forgeConfig) {
+	public FPConfiguration(File f, ConfigurationPlus forgeConfig) {
 		this.file = f;
 		this.forgeConfig = forgeConfig;
 		this.transformer = null;
@@ -45,16 +80,17 @@ public class FPConfiguration extends Configuration {
 		return Collections.unmodifiableMap(this.categories);
 	}
 	
-	@Override
+	public boolean hasError() {
+		return this.lastError != null;
+	}
+	
 	public void save() {
 		try {
 			if (this.forgeConfig != null) {
 				this.forgeConfig.save();
 			}
-			if (this.file != null) {
-				if (this.transformer == null) {
-					throw new NullPointerException("FPConfiguration.transformer has not been set");
-				}
+			if (this.transformer == null) {
+				throw new NullPointerException("FPConfiguration.transformer has not been set");
 			}
 			this.transformer.save(this, this.file);
 			this.lastError = null;
@@ -64,16 +100,13 @@ public class FPConfiguration extends Configuration {
 		}
 	}
 	
-	@Override
 	public void load() {
 		try {
 			if (this.forgeConfig != null) {
 				this.forgeConfig.load();
 			}
-			if (this.file != null) {
-				if (this.transformer == null) {
-					throw new NullPointerException("FPConfiguration.transformer has not been set");
-				}
+			if (this.transformer == null) {
+				throw new NullPointerException("FPConfiguration.transformer has not been set");
 			}
 			this.transformer.load(this, this.file);
 			this.lastError = null;
@@ -81,79 +114,5 @@ public class FPConfiguration extends Configuration {
 			this.lastError = ex;
 			ex.printStackTrace();
 		}
-	}
-	
-	public final void defaultForgeSave() {
-		super.save();
-	}
-	
-	public final void defaultForgeLoad() {
-		super.load();
-	}
-	
-	/* MONOTONOUS */
-	/* Get general */
-	public Property getGeneral(String key, boolean _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, boolean[] _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, int _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, int[] _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, double _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, double[] _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, String _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	
-	public Property getGeneral(String key, String[] _default) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default);
-	}
-	/* Get general with comment */
-	public Property getGeneral(String key, boolean _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, boolean[] _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, int _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, int[] _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, double _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, double[] _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, String _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
-	}
-	
-	public Property getGeneral(String key, String[] _default, String comment) {
-		return this.get(Configuration.CATEGORY_GENERAL, key, _default, comment);
 	}
 }
