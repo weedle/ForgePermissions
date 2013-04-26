@@ -77,31 +77,76 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 
 		public JsonRootNode build() {
 			JsonObjectNodeBuilder root = JsonNodeBuilders.anObjectBuilder();
-			for (String node : this.nodes.keySet()) {
-				Object nodeVal = this.nodes.get(node);
-				
-				if (nodeVal instanceof Integer) {
-					root = this.buildNumber(root, node, (Integer) nodeVal);
+			this.buildNode(root, this.nodes);
+			return root.build();
+		}
+
+
+		private JsonObjectNodeBuilder buildSubMapping(JsonObjectNodeBuilder head, String node,
+				Map<String, Object> nodeVal) {
+
+			JsonObjectNodeBuilder nodeObject = JsonNodeBuilders.anObjectBuilder();
+			this.buildNode(nodeObject, nodeVal);
+			head.withField(node, nodeObject);
+			return head;
+		}
+
+		private JsonObjectNodeBuilder buildNode(JsonObjectNodeBuilder head, Map<String,Object> subNodes){
+			for (String node : subNodes.keySet()) {
+				Object nodeVal = subNodes.get(node);
+
+				if (nodeVal instanceof Number) {
+					head = this.buildNumber(head, node, (Number) nodeVal);
 				} else if (nodeVal instanceof String) {
-					root = this.buildString(root, node, (String) nodeVal);
+					head = this.buildString(head, node, (String) nodeVal);
 				} else if (nodeVal instanceof Boolean) {
-					root = this.buildBoolean(root, node, (Boolean) nodeVal);
+					head = this.buildBoolean(head, node, (Boolean) nodeVal);
 				} else if (nodeVal instanceof Number[] || nodeVal instanceof String[] || nodeVal instanceof Boolean[]) {
 					JsonArrayNodeBuilder array = JsonNodeBuilders.anArrayBuilder();
 					if (nodeVal instanceof Integer[]) {
-							array = this.buildArrayNumber(array, node, (Integer[]) nodeVal);
+						array = this.buildArrayNumber(array, node, (Integer[]) nodeVal);
 					} else if (nodeVal instanceof String[]) {
 						array = this.buildArrayString(array, node, (String[]) nodeVal);
 					} else if (nodeVal instanceof Boolean[]) {
 						array = this.buildArrayBoolean(array, node, (Boolean[]) nodeVal);
 					}
-					root.withField(node, array);
+					head.withField(node, array);
+				} else if (nodeVal instanceof Map<?,?>){
+					this.buildSubMapping(head, node, (Map<String,Object>) nodeVal);
 				} else if (nodeVal == null) {
 					ForgePermissions.log.info(String.format("Got null key {%s}", node));
-					root = root.withField(node, JsonNodeBuilders.aNullBuilder());
+					head = head.withField(node, JsonNodeBuilders.aNullBuilder());
 				}
 			}
-			return root.build();
+			return head;
+		}
+
+		private JsonArrayNodeBuilder buildArrayBoolean(
+				JsonArrayNodeBuilder array, String node, Boolean[] nodeVal) {
+			for (Boolean b : nodeVal){
+				if (b) {
+					array = array.withElement(JsonNodeBuilders.aTrueBuilder());
+				} else {
+					array = array.withElement(JsonNodeBuilders.aFalseBuilder());
+				}
+			}
+			return array;
+		}
+
+		private JsonArrayNodeBuilder buildArrayString(
+				JsonArrayNodeBuilder array, String node, String[] nodeVal) {
+			for (String s : nodeVal){
+				array = array.withElement(JsonNodeBuilders.aStringBuilder(s));
+			}
+			return array;
+		}
+
+		private JsonArrayNodeBuilder buildArrayNumber(
+				JsonArrayNodeBuilder array, String node, Number[] nodeVal) {
+			for (Number i : nodeVal){
+				array = array.withElement(JsonNodeBuilders.aNumberBuilder(i.toString()));
+			}
+			return array;
 		}
 
 		private JsonObjectNodeBuilder buildBoolean(JsonObjectNodeBuilder builder, String key, Boolean value) {
@@ -123,28 +168,5 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 			return builder;
 		}
 
-		private JsonArrayNodeBuilder buildArrayBoolean(
-				JsonArrayNodeBuilder array, String node, Boolean[] b) {
-			for (Boolean value : b){
-				if (value) {
-					array = array.withElement(JsonNodeBuilders.aTrueBuilder());
-				} else {
-					array = array.withElement(JsonNodeBuilders.aFalseBuilder());
-				}
-			}
-			return null;
-		}
-
-		private JsonArrayNodeBuilder buildArrayString(
-				JsonArrayNodeBuilder array, String node, String[] nodeVal) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		private JsonArrayNodeBuilder buildArrayNumber(
-				JsonArrayNodeBuilder array, String node, Integer[] nodeVal) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 }
