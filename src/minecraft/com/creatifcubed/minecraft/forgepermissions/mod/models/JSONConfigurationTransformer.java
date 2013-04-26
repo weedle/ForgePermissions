@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraftforge.common.ConfigCategory;
@@ -73,5 +74,38 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 	public void load(FPConfiguration config, File f) throws IOException, InvalidSyntaxException {
 		JsonRootNode root = new JdomParser().parse(new FileReader(f));
 
+	}
+	
+	private class JsonTree {
+		private Map<String, Object> nodes;
+		public JsonTree() {
+			this.nodes = new HashMap<String, Object>();
+		}
+		
+		public void put(String key, Object value) {
+			if (key.isEmpty()) {
+				throw new IllegalArgumentException("JSONConfigurationTransformer.JsonTree.put(String, Object) string param 0 is empty");
+			}
+			String[] parts = key.split("\\.");
+			Map<String, Object> container = this.ensurePathExists(parts);
+			container.put(parts[parts.length - 1], value);
+		}
+		
+		public Map<String, Object> ensurePathExists(String[] parts) {
+			Map<String, Object> last = nodes;
+			for (int i = 0; i < parts.length - 1; i++) {
+				Object current = ((Map) last).get(parts[i]);
+				if (!(current instanceof Map)) {
+					current = new HashMap<String, Object>();
+					((Map) last).put(parts[i], current);
+				}
+				last = (Map) current;
+			}
+			return last;
+		}
+		
+		public JsonRootNode build() {
+			return null;
+		}
 	}
 }
