@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 
+import argo.saj.InvalidSyntaxException;
+
 import com.creatifcubed.minecraft.forgepermissions.Utils;
 import com.google.common.collect.ImmutableSet;
 
@@ -76,7 +78,7 @@ public class FPConfiguration {
 		return this;
 	}
 	
-	public Map<String, ConfigCategory> getCategories() {
+	protected Map<String, ConfigCategory> getCategories() {
 		return Collections.unmodifiableMap(this.categories);
 	}
 	
@@ -111,6 +113,9 @@ public class FPConfiguration {
 			this.transformer.load(this, this.file);
 			this.lastError = null;
 		} catch (IOException ex) {
+			this.lastError = ex;
+			ex.printStackTrace();
+		} catch (InvalidSyntaxException ex) {
 			this.lastError = ex;
 			ex.printStackTrace();
 		}
