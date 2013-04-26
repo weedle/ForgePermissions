@@ -1,26 +1,21 @@
 package com.creatifcubed.minecraft.forgepermissions.mod.models;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraftforge.common.ConfigCategory;
-import net.minecraftforge.common.Property;
+import com.creatifcubed.minecraft.forgepermissions.ForgePermissions;
 
+import net.minecraftforge.common.ConfigCategory;
 import argo.format.JsonFormatter;
 import argo.format.PrettyJsonFormatter;
+import argo.jdom.JdomParser;
 import argo.jdom.JsonNodeBuilders;
 import argo.jdom.JsonObjectNodeBuilder;
 import argo.jdom.JsonRootNode;
-import argo.jdom.JdomParser;
 import argo.saj.InvalidSyntaxException;
-import static argo.jdom.JsonNodeFactories.*;
-
-import com.creatifcubed.minecraft.forgepermissions.mod.commands.FPCommand;
 
 public class JSONConfigurationTransformer implements ConfigurationTransformer {
 
@@ -76,25 +71,34 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 		public JsonRootNode build() {
 			JsonObjectNodeBuilder builder = JsonNodeBuilders.anObjectBuilder();
 			for (String node : nodes.keySet()){
-				if (nodes.get(node) instanceof Integer){
-					builder = buildInteger(builder, node, (Integer) nodes.get(node));
-				} else if (nodes.get(node) instanceof String){
-					builder = buildString(builder, node, (String) nodes.get(node));
-				} else if (nodes.get(node) instanceof Boolean){
-					builder = buildBoolean(builder, node, (Boolean) nodes.get(node));
-				} else if (nodes.get(node) instanceof Integer[]){
-					for (int i : (Integer[]) nodes.get(node)){
-					builder = buildInteger(builder, node, i);
+				Object nodeVal = nodes.get(node);
+				
+				if (nodeVal instanceof Integer){
+					builder = buildInteger(builder, node, (Integer) nodeVal);
+					
+				} else if (nodeVal instanceof String){
+					builder = buildString(builder, node, (String) nodeVal);
+					
+				} else if (nodeVal instanceof Boolean){
+					builder = buildBoolean(builder, node, (Boolean) nodeVal);
+					
+				} else if (nodeVal instanceof Integer[]){
+					for (int i : (Integer[]) nodeVal){
+						builder = buildInteger(builder, node, i);
 					}
-				} else if (nodes.get(node) instanceof String[]){
-					for (String s : (String[]) nodes.get(node)){
-					builder = buildString(builder, node, s);
+					
+				} else if (nodeVal instanceof String[]){
+					for (String s : (String[]) nodeVal){
+						builder = buildString(builder, node, s);
 					}
-				} else if (nodes.get(node) instanceof Boolean[]){
-					for (Boolean b : (Boolean[]) nodes.get(node)){
-					builder = buildBoolean(builder, node, b);
+					
+				} else if (nodeVal instanceof Boolean[]){
+					for (Boolean b : (Boolean[]) nodeVal){
+						builder = buildBoolean(builder, node, b);
 					}				
+					
 				} else {
+					ForgePermissions.log.info(String.format("Got null key {%s}", node));
 					builder = builder.withField(node, JsonNodeBuilders.aNullBuilder());
 				} 
 			}
@@ -102,23 +106,23 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 		}
 		
 		private JsonObjectNodeBuilder buildBoolean(
-				JsonObjectNodeBuilder builder, String key, Boolean value) {
+		JsonObjectNodeBuilder builder, String key, Boolean value) {
 			if(value){
-			builder = builder.withField(key, JsonNodeBuilders.aTrueBuilder());
+				builder = builder.withField(key, JsonNodeBuilders.aTrueBuilder());
 			} else {
 				builder = builder.withField(key, JsonNodeBuilders.aFalseBuilder());
 			}
-			return builder;
+				return builder;
 		}
 
 		private JsonObjectNodeBuilder buildString(
-				JsonObjectNodeBuilder builder, String key, String value) {
+		JsonObjectNodeBuilder builder, String key, String value) {
 			builder = builder.withField(key, JsonNodeBuilders.aStringBuilder(value));
 			return builder;
 		}
 
 		public JsonObjectNodeBuilder buildInteger(
-				JsonObjectNodeBuilder builder, String key, Integer value){
+		JsonObjectNodeBuilder builder, String key, Integer value){
 			builder = builder.withField(key, JsonNodeBuilders.aNumberBuilder("\"" + value.toString() + "\""));
 			return builder;
 		}
