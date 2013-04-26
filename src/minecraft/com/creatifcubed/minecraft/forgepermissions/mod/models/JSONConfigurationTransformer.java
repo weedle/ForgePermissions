@@ -18,6 +18,7 @@ import argo.jdom.JsonObjectNodeBuilder;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JdomParser;
 import argo.saj.InvalidSyntaxException;
+import static argo.jdom.JsonNodeFactories.*;
 
 import com.creatifcubed.minecraft.forgepermissions.mod.commands.FPCommand;
 
@@ -36,38 +37,6 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 		
 		JsonRootNode node = builder.build();
 		System.out.println(formatter.format(node));
-//
-//		for (String each : categories.keySet()) {
-//			JsonObjectNodeBuilder cat = JsonNodeBuilders.anObjectBuilder();
-//			categories.withField(each, cat);
-//			for (Property p : categories.get(each).values()) {
-//				if(p.getType() == Property.Type.INTEGER) {
-//					
-//							json.put(p.getName(), p.getInt());
-//							//out.write(p.getName() + ":" + p.getInt());
-//				}
-//				if(p.getType() == Property.Type.BOOLEAN) {
-//
-//					json.put(p.getName(), p.isBooleanValue());
-//					//out.write(p.getName() + ":" + p.isBooleanValue());
-//				}
-//				if(p.getType() == Property.Type.STRING) {
-//
-//					json.put(p.getName(), p.getString());
-//					//out.write(p.getName() + ": \"" + p.getString() + "\"");
-//				}
-//				if(p.getType() == Property.Type.DOUBLE) {
-//					for (Double d : p.getDoubleList()){
-//						json.accumulate(p.getName(), d);
-//					}
-//
-//				}
-//			}
-//		}
-//
-//		//Close the output stream
-//		out.write(json.toString());
-//		out.close();
 	}
 
 	@Override
@@ -105,7 +74,53 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 		}
 		
 		public JsonRootNode build() {
-			return null;
+			JsonObjectNodeBuilder builder = JsonNodeBuilders.anObjectBuilder();
+			for (String node : nodes.keySet()){
+				if (nodes.get(node) instanceof Integer){
+					builder = buildInteger(builder, node, (Integer) nodes.get(node));
+				} else if (nodes.get(node) instanceof String){
+					builder = buildString(builder, node, (String) nodes.get(node));
+				} else if (nodes.get(node) instanceof Boolean){
+					builder = buildBoolean(builder, node, (Boolean) nodes.get(node));
+				} else if (nodes.get(node) instanceof Integer[]){
+					for (int i : (Integer[]) nodes.get(node)){
+					builder = buildInteger(builder, node, i);
+					}
+				} else if (nodes.get(node) instanceof String[]){
+					for (String s : (String[]) nodes.get(node)){
+					builder = buildString(builder, node, s);
+					}
+				} else if (nodes.get(node) instanceof Boolean[]){
+					for (Boolean b : (Boolean[]) nodes.get(node)){
+					builder = buildBoolean(builder, node, b);
+					}				
+				} else {
+					builder = builder.withField(node, JsonNodeBuilders.aNullBuilder());
+				} 
+			}
+			return builder.build();
+		}
+		
+		private JsonObjectNodeBuilder buildBoolean(
+				JsonObjectNodeBuilder builder, String key, Boolean value) {
+			if(value){
+			builder = builder.withField(key, JsonNodeBuilders.aTrueBuilder());
+			} else {
+				builder = builder.withField(key, JsonNodeBuilders.aFalseBuilder());
+			}
+			return builder;
+		}
+
+		private JsonObjectNodeBuilder buildString(
+				JsonObjectNodeBuilder builder, String key, String value) {
+			builder = builder.withField(key, JsonNodeBuilders.aStringBuilder(value));
+			return builder;
+		}
+
+		public JsonObjectNodeBuilder buildInteger(
+				JsonObjectNodeBuilder builder, String key, Integer value){
+			builder = builder.withField(key, JsonNodeBuilders.aNumberBuilder("\"" + value.toString() + "\""));
+			return builder;
 		}
 	}
 }
