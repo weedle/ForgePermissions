@@ -89,17 +89,11 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 				} else if (nodeVal instanceof Number[] || nodeVal instanceof String[] || nodeVal instanceof Boolean[]) {
 					JsonArrayNodeBuilder array = JsonNodeBuilders.anArrayBuilder();
 					if (nodeVal instanceof Integer[]) {
-						for (int i : (Integer[]) nodeVal) {
-							root = this.buildNumber(root, node, i);
-						}
+							array = this.buildArrayNumber(array, node, (Integer[]) nodeVal);
 					} else if (nodeVal instanceof String[]) {
-						for (String s : (String[]) nodeVal) {
-							root = this.buildString(root, node, s);
-						}
+						array = this.buildArrayString(array, node, (String[]) nodeVal);
 					} else if (nodeVal instanceof Boolean[]) {
-						for (Boolean b : (Boolean[]) nodeVal) {
-							root = this.buildBoolean(root, node, b);
-						}
+						array = this.buildArrayBoolean(array, node, (Boolean[]) nodeVal);
 					}
 					root.withField(node, array);
 				} else if (nodeVal == null) {
@@ -127,6 +121,30 @@ public class JSONConfigurationTransformer implements ConfigurationTransformer {
 		private JsonObjectNodeBuilder buildNumber(JsonObjectNodeBuilder builder, String key, Number value) {
 			builder = builder.withField(key, JsonNodeBuilders.aNumberBuilder(value.toString()));
 			return builder;
+		}
+
+		private JsonArrayNodeBuilder buildArrayBoolean(
+				JsonArrayNodeBuilder array, String node, Boolean[] b) {
+			for (Boolean value : b){
+				if (value) {
+					array = array.withElement(JsonNodeBuilders.aTrueBuilder());
+				} else {
+					array = array.withElement(JsonNodeBuilders.aFalseBuilder());
+				}
+			}
+			return null;
+		}
+
+		private JsonArrayNodeBuilder buildArrayString(
+				JsonArrayNodeBuilder array, String node, String[] nodeVal) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		private JsonArrayNodeBuilder buildArrayNumber(
+				JsonArrayNodeBuilder array, String node, Integer[] nodeVal) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }
