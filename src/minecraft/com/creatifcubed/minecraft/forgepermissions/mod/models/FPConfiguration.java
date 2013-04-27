@@ -82,6 +82,18 @@ public class FPConfiguration {
 		return Collections.unmodifiableMap(this.categories);
 	}
 	
+	public ConfigCategory addCategory(String name) {
+		name = name.toLowerCase();
+		ConfigCategory newCat = new ConfigCategory(name);
+		this.categories.put(name, newCat);
+		return newCat;
+	}
+	
+	public void removeCategory(String name) {
+		name = name.toLowerCase();
+		this.categories.remove(name);
+	}
+	
 	public boolean hasError() {
 		return this.lastError != null;
 	}
